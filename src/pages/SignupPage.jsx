@@ -18,7 +18,7 @@ export default function SignupPage() {
   const [payment, setPayment] = useState({ cardNumber: "", expiry: "", cvc: "", address: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user, signup, logout } = useAuth();
+  const { user, signup } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -94,7 +94,6 @@ export default function SignupPage() {
     const result = await signup(email.trim(), password, name.trim() || "User", planId);
     setLoading(false);
     if (result.success) {
-      await logout();
       navigate("/login", { replace: true, state: { message: t("signup.accountCreatedMessage") } });
     } else {
       setError(result.error || t("login.error"));

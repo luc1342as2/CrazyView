@@ -1,26 +1,53 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import Navbar from "../components/Navbar";
 import "./AuthPages.css";
 
 export default function ForgotPasswordPage() {
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [sentCode, setSentCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
-  const { requestPasswordReset } = useAuth();
+  const { requestPasswordReset, resetPassword } = useAuth();
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
-  const handleRequestReset = async (e) => {
+  const handleRequestCode = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     const result = await requestPasswordReset(email.trim());
     setLoading(false);
     if (result.success) {
-      setSent(true);
+      setSentCode(result.code);
+      setStep(2);
+    } else {
+      const errMsg =
+        typeof result.error === "string" &&
+        (result.error.startsWith("reset.") || result.error.startsWith("signup."))
+          ? t(result.error)
+          : result.error || t("reset.errorGeneric");
+      setError(errMsg);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (newPassword.length < 4) {
+      setError("Password must be at least 4 characters.");
+      return;
+    }
+    setLoading(true);
+    const result = await resetPassword(email.trim(), code, newPassword);
+    setLoading(false);
+    if (result.success) {
+      navigate("/login", { replace: true, state: { message: t("reset.successMessage") } });
     } else {
       const errMsg =
         typeof result.error === "string" &&
@@ -39,15 +66,8 @@ export default function ForgotPasswordPage() {
           <h1>{t("reset.title")}</h1>
           {error && <div className="auth-error">{error}</div>}
 
-          {sent ? (
-            <div className="reset-sent">
-              <p className="reset-desc">{t("reset.checkEmail")}</p>
-              <p className="reset-sent-note">
-                We sent a password reset link to <strong>{email}</strong>. Click the link to set a new password.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleRequestReset}>
+          {step === 1 ? (
+            <form onSubmit={handleRequestCode}>
               <p className="reset-desc">{t("reset.enterEmail")}</p>
               <input
                 type="email"
@@ -59,6 +79,34 @@ export default function ForgotPasswordPage() {
               />
               <button type="submit" className="auth-submit" disabled={loading}>
                 {loading ? t("reset.sending") : t("reset.sendCode")}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleResetPassword}>
+              <p className="reset-desc">{t("reset.checkEmail")}</p>
+              <div className="reset-demo-code">
+                {t("reset.demoCodeLabel")} <strong>{sentCode}</strong>
+              </div>
+              <input
+                type="text"
+                placeholder={t("reset.codePlaceholder")}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                maxLength={6}
+                required
+              />
+              <input
+                type="password"
+                placeholder={t("reset.newPasswordPlaceholder")}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={4}
+                maxLength={60}
+                autoComplete="new-password"
+              />
+              <button type="submit" className="auth-submit" disabled={loading}>
+                {loading ? t("reset.resetting") : t("reset.resetPassword")}
               </button>
             </form>
           )}

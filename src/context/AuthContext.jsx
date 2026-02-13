@@ -1,25 +1,40 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "../lib/supabase";
 
 const AuthContext = createContext(null);
 
-function mapProfileToUser(profile, authUser) {
-  if (!authUser) return null;
+const USERS_KEY = "crazyview_users";
+const CURRENT_USER_KEY = "crazyview_user";
+const RESET_CODES_KEY = "crazyview_reset_codes";
+const CODE_EXPIRY_MS = 10 * 60 * 1000;
+
+function getUsers() {
+  try {
+    return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveUsers(users) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+function toUserObject(stored) {
   return {
-    id: authUser.id,
-    email: authUser.email,
-    name: profile?.name || "User",
-    plan: profile?.plan || "standard",
-    profiles: profile?.profiles || ["Profile 1"],
-    phone: profile?.phone ?? "",
-    twoFA: profile?.two_fa ?? false,
-    twoFAMethod: profile?.two_fa_method ?? null,
-    twoFAValue: profile?.two_fa_value ?? "",
-    memberSince: profile?.member_since || new Date().toISOString().split("T")[0],
-    cardBrand: profile?.card_brand ?? "Visa",
-    cardLast4: profile?.card_last4 ?? "4242",
-    planCancelled: profile?.plan_cancelled ?? false,
-    planEndsAt: profile?.plan_ends_at ?? null,
+    id: stored.id,
+    email: stored.email,
+    name: stored.name || "User",
+    plan: stored.plan || "standard",
+    profiles: stored.profiles || ["Profile 1"],
+    phone: stored.phone ?? "",
+    twoFA: stored.twoFA ?? false,
+    twoFAMethod: stored.twoFAMethod ?? null,
+    twoFAValue: stored.twoFAValue ?? "",
+    memberSince: stored.memberSince || new Date().toISOString().split("T")[0],
+    cardBrand: stored.cardBrand ?? "Visa",
+    cardLast4: stored.cardLast4 ?? "4242",
+    planCancelled: stored.planCancelled ?? false,
+    planEndsAt: stored.planEndsAt ?? null,
   };
 }
 
@@ -28,123 +43,108 @@ export function AuthProvider({ children }) {
   const [currentProfile, setCurrentProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId) => {
-    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
-    return data;
-  };
-
-  const syncUser = async (authUser) => {
-    if (!authUser) {
-      setUser(null);
-      setCurrentProfile(null);
-      localStorage.removeItem("netflix_profile");
-      return;
-    }
-    const profile = await fetchProfile(authUser.id);
-    const sessionUser = mapProfileToUser(profile, authUser);
-    setUser(sessionUser);
-    const storedProfile = localStorage.getItem("netflix_profile");
-    if (storedProfile && (profile?.profiles || []).includes(storedProfile)) {
-      setCurrentProfile(storedProfile);
-    } else {
-      setCurrentProfile(profile?.profiles?.[0] || "Profile 1");
-      if (profile?.profiles?.[0]) localStorage.setItem("netflix_profile", profile.profiles[0]);
-    }
-  };
-
   useEffect(() => {
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      setLoading(false);
-      return;
+    const stored = localStorage.getItem(CURRENT_USER_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setUser(toUserObject(parsed));
+        const profile = localStorage.getItem("netflix_profile");
+        const profiles = parsed.profiles || ["Profile 1"];
+        if (profile && profiles.includes(profile)) {
+          setCurrentProfile(profile);
+        } else {
+          setCurrentProfile(profiles[0]);
+          localStorage.setItem("netflix_profile", profiles[0]);
+        }
+      } catch {
+        localStorage.removeItem(CURRENT_USER_KEY);
+      }
     }
-
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      await syncUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      await syncUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
+    setLoading(false);
   }, []);
 
+  const persistUser = (u) => {
+    if (u) localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(u));
+    else localStorage.removeItem(CURRENT_USER_KEY);
+  };
+
   const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-    if (error) {
-      let msg = error.message || "Invalid email or password.";
-      if (msg.toLowerCase().includes("rate limit") || msg.toLowerCase().includes("rate_limit")) {
-        msg = "Too many attempts. Please wait a few minutes and try again.";
-      } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("credentials")) {
-        msg = "Invalid email or password. Check your credentials and try again.";
-      }
-      return { success: false, error: msg };
+    const users = getUsers();
+    const trimmed = email.trim();
+    const found = users.find((u) => u.email.toLowerCase() === trimmed.toLowerCase());
+    if (!found || found.password !== password) {
+      return { success: false, error: "Invalid email or password." };
     }
-    await syncUser(data.user);
+    const sessionUser = toUserObject(found);
+    setUser(sessionUser);
+    setCurrentProfile(found.profiles?.[0] || "Profile 1");
+    localStorage.setItem("netflix_profile", found.profiles?.[0] || "Profile 1");
+    persistUser(found);
     return { success: true };
   };
 
   const signup = async (email, password, name, planId) => {
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: {
-        data: {
-          name: name.trim() || "User",
-          plan: planId,
-          profiles: ["Profile 1"],
-          member_since: new Date().toISOString().split("T")[0],
-        },
-      },
-    });
-    if (error) {
-      let msg = error.message;
-      if (msg?.includes("already registered") || error.code === "user_already_exists") {
-        msg = "An account with this email already exists.";
-      } else if (msg?.toLowerCase().includes("rate limit") || msg?.toLowerCase().includes("rate_limit")) {
-        msg = "Too many signup attempts. Please wait a few minutes and try again.";
-      }
-      return { success: false, error: msg || "Signup failed. Please try again." };
+    const users = getUsers();
+    const trimmed = email.trim();
+    if (users.some((u) => u.email.toLowerCase() === trimmed.toLowerCase())) {
+      return { success: false, error: "An account with this email already exists." };
     }
-    if (data.user) await syncUser(data.user);
+    const newUser = {
+      id: crypto.randomUUID?.() || Date.now().toString(),
+      email: trimmed,
+      password,
+      name: name.trim() || "User",
+      plan: planId || "standard",
+      profiles: ["Profile 1"],
+      phone: "",
+      twoFA: false,
+      twoFAMethod: null,
+      twoFAValue: "",
+      memberSince: new Date().toISOString().split("T")[0],
+      cardBrand: "Visa",
+      cardLast4: "4242",
+      planCancelled: false,
+      planEndsAt: null,
+    };
+    users.push(newUser);
+    saveUsers(users);
     return { success: true };
   };
 
   const updateUser = async (updates) => {
     if (!user?.id) return;
-    const profileUpdates = {};
+    const users = getUsers();
+    const idx = users.findIndex((u) => u.id === user.id);
+    if (idx < 0) return;
+    if (updates.email) {
+      const exists = users.some(
+        (u, i) => i !== idx && u.email.toLowerCase() === updates.email.trim().toLowerCase()
+      );
+      if (exists) return;
+    }
     const keyMap = {
       name: "name",
       plan: "plan",
       profiles: "profiles",
       phone: "phone",
-      twoFA: "two_fa",
-      twoFAMethod: "two_fa_method",
-      twoFAValue: "two_fa_value",
-      memberSince: "member_since",
-      cardBrand: "card_brand",
-      cardLast4: "card_last4",
-      planCancelled: "plan_cancelled",
-      planEndsAt: "plan_ends_at",
+      twoFA: "twoFA",
+      twoFAMethod: "twoFAMethod",
+      twoFAValue: "twoFAValue",
+      memberSince: "memberSince",
+      cardBrand: "cardBrand",
+      cardLast4: "cardLast4",
+      planCancelled: "planCancelled",
+      planEndsAt: "planEndsAt",
       email: "email",
     };
     Object.entries(updates).forEach(([k, v]) => {
-      if (keyMap[k] !== undefined) profileUpdates[keyMap[k]] = v;
+      if (keyMap[k] !== undefined) users[idx][keyMap[k]] = v;
     });
-    profileUpdates.updated_at = new Date().toISOString();
-
-    await supabase.from("profiles").update(profileUpdates).eq("id", user.id);
-
-    if (updates.email) {
-      await supabase.auth.updateUser({ email: updates.email });
-    }
-
-    const profile = await fetchProfile(user.id);
-    setUser(mapProfileToUser(profile, { ...user, email: updates.email || user.email }));
+    saveUsers(users);
+    const updated = { ...users[idx] };
+    setUser(toUserObject(updated));
+    persistUser(updated);
   };
 
   const updateProfile = (oldName, newName) => {
@@ -173,9 +173,9 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
     setUser(null);
     setCurrentProfile(null);
+    localStorage.removeItem(CURRENT_USER_KEY);
     localStorage.removeItem("netflix_profile");
   };
 
@@ -186,31 +186,50 @@ export function AuthProvider({ children }) {
 
   const verifyPassword = async (password) => {
     if (!user?.email) return false;
-    const { error } = await supabase.auth.signInWithPassword({
-      email: user.email,
-      password,
-    });
-    return !error;
+    const users = getUsers();
+    const found = users.find((u) => u.email === user.email);
+    return found ? found.password === password : false;
   };
 
   const requestPasswordReset = async (email) => {
     const trimmed = email.trim();
-    const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (error) {
-      let msg = error.message;
-      if (msg?.toLowerCase().includes("rate limit") || msg?.toLowerCase().includes("rate_limit")) {
-        msg = "Too many attempts. Please wait a few minutes and try again.";
-      }
-      return { success: false, error: msg };
+    const users = getUsers();
+    const found = users.find((u) => u.email.toLowerCase() === trimmed.toLowerCase());
+    if (!found) {
+      return { success: false, error: "No account found with this email." };
     }
-    return { success: true };
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    let codes = {};
+    try {
+      codes = JSON.parse(localStorage.getItem(RESET_CODES_KEY) || "{}");
+    } catch {}
+    codes[trimmed.toLowerCase()] = { code, expires: Date.now() + CODE_EXPIRY_MS };
+    localStorage.setItem(RESET_CODES_KEY, JSON.stringify(codes));
+    return { success: true, code };
   };
 
-  const resetPassword = async (newPassword) => {
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) return { success: false, error: error.message };
+  const resetPassword = async (email, code, newPassword) => {
+    const trimmed = email.trim();
+    let codes = {};
+    try {
+      codes = JSON.parse(localStorage.getItem(RESET_CODES_KEY) || "{}");
+    } catch {}
+    const entry = codes[trimmed.toLowerCase()];
+    if (!entry || entry.code !== code) {
+      return { success: false, error: "Invalid or expired code." };
+    }
+    if (Date.now() > entry.expires) {
+      delete codes[trimmed.toLowerCase()];
+      localStorage.setItem(RESET_CODES_KEY, JSON.stringify(codes));
+      return { success: false, error: "Code has expired. Please request a new one." };
+    }
+    const users = getUsers();
+    const idx = users.findIndex((u) => u.email.toLowerCase() === trimmed.toLowerCase());
+    if (idx < 0) return { success: false, error: "Account not found." };
+    users[idx].password = newPassword;
+    saveUsers(users);
+    delete codes[trimmed.toLowerCase()];
+    localStorage.setItem(RESET_CODES_KEY, JSON.stringify(codes));
     return { success: true };
   };
 
