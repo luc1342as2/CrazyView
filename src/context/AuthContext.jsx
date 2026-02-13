@@ -76,13 +76,13 @@ export function AuthProvider({ children }) {
       password,
     });
     if (error) {
-      const msg = error.message || "Invalid email or password.";
-      const isInvalidCreds =
-        msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("credentials");
-      const hint = isInvalidCreds
-        ? " If you just signed up, check your email for a confirmation link."
-        : "";
-      return { success: false, error: msg + hint };
+      let msg = error.message || "Invalid email or password.";
+      if (msg.toLowerCase().includes("rate limit") || msg.toLowerCase().includes("rate_limit")) {
+        msg = "Too many attempts. Please wait a few minutes and try again.";
+      } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("credentials")) {
+        msg = "Invalid email or password. Check your credentials and try again.";
+      }
+      return { success: false, error: msg };
     }
     await syncUser(data.user);
     return { success: true };
@@ -102,10 +102,13 @@ export function AuthProvider({ children }) {
       },
     });
     if (error) {
-      if (error.message?.includes("already registered") || error.code === "user_already_exists") {
-        return { success: false, error: "An account with this email already exists." };
+      let msg = error.message;
+      if (msg?.includes("already registered") || error.code === "user_already_exists") {
+        msg = "An account with this email already exists.";
+      } else if (msg?.toLowerCase().includes("rate limit") || msg?.toLowerCase().includes("rate_limit")) {
+        msg = "Too many signup attempts. Please wait a few minutes and try again.";
       }
-      return { success: false, error: error.message };
+      return { success: false, error: msg || "Signup failed. Please try again." };
     }
     if (data.user) await syncUser(data.user);
     return { success: true };
@@ -195,7 +198,13 @@ export function AuthProvider({ children }) {
     const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    if (error) return { success: false, error: error.message };
+    if (error) {
+      let msg = error.message;
+      if (msg?.toLowerCase().includes("rate limit") || msg?.toLowerCase().includes("rate_limit")) {
+        msg = "Too many attempts. Please wait a few minutes and try again.";
+      }
+      return { success: false, error: msg };
+    }
     return { success: true };
   };
 

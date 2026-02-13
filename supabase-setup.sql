@@ -1,8 +1,9 @@
 -- Run this SQL in your Supabase project: SQL Editor > New Query
 -- https://supabase.com/dashboard/project/_/sql
 --
--- IMPORTANT: To allow users to log in immediately after signup (without email confirmation),
--- go to Authentication > Providers > Email and disable "Confirm email".
+-- SETUP REQUIRED:
+-- 1. Authentication > Providers > Email: Disable "Confirm email" (so users can log in right after signup)
+-- 2. To delete all users and start fresh: run supabase-delete-users.sql
 
 -- Profiles table: stores user data (plan, profiles, etc.)
 create table if not exists public.profiles (
