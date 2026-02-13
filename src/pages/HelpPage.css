@@ -1,0 +1,133 @@
+.help-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.help-content {
+  padding: 100px 4% 80px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.help-content h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 32px;
+  text-align: center;
+}
+
+.faq-list {
+  margin-bottom: 48px;
+}
+
+.faq-item {
+  margin-bottom: 8px;
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: #2c2c2c;
+  border: none;
+  color: #fff;
+  font-size: 1.25rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.faq-question:hover {
+  background: #404040;
+}
+
+.faq-icon {
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.faq-answer {
+  padding: 20px 24px;
+  background: #2c2c2c;
+  margin: 1px 0 0;
+  color: #b3b3b3;
+  line-height: 1.6;
+}
+
+.help-contact {
+  padding: 32px 0;
+  border-top: 1px solid #333;
+  margin-bottom: 24px;
+}
+
+.help-contact h2 {
+  font-size: 1.25rem;
+  color: #fff;
+  margin: 0 0 12px;
+}
+
+.help-contact p {
+  color: #b3b3b3;
+  margin: 0 0 16px;
+}
+
+.help-link {
+  color: #0080ff;
+  text-decoration: none;
+}
+
+.help-link:hover {
+  text-decoration: underline;
+}
+
+.help-back {
+  color: #fff;
+  text-decoration: none;
+}
+
+.help-back:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .help-content {
+    padding: 80px 4% 60px;
+  }
+  .help-content h1 {
+    font-size: 2rem;
+    margin-bottom: 28px;
+  }
+  .faq-question {
+    padding: 16px 20px;
+    font-size: 1.125rem;
+  }
+  .faq-answer {
+    padding: 16px 20px;
+    font-size: 0.9375rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .help-content {
+    padding: 70px 3% 48px;
+  }
+  .help-content h1 {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+  .faq-question {
+    padding: 14px 16px;
+    font-size: 1rem;
+  }
+  .faq-answer {
+    padding: 14px 16px;
+    font-size: 0.875rem;
+  }
+  .help-contact {
+    padding: 24px 0;
+  }
+}

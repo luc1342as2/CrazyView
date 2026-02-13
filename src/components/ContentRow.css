@@ -1,0 +1,166 @@
+.content-row {
+  margin-bottom: 40px;
+}
+
+.row-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 16px 4%;
+}
+
+.row-container {
+  position: relative;
+  padding: 0 4%;
+}
+
+.row-nav {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50px;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.row-container:hover .row-nav {
+  opacity: 1;
+}
+
+.row-nav.left {
+  left: 0;
+}
+
+.row-nav.right {
+  right: 0;
+}
+
+.row-nav svg {
+  width: 24px;
+  height: 24px;
+}
+
+.row-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 4px 0;
+  scrollbar-width: none;
+}
+
+.row-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.row-item {
+  flex: 0 0 240px;
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition-normal);
+  /* Touch-friendly: prevent zoom on double-tap */
+  touch-action: manipulation;
+}
+
+.row-item:hover {
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.row-item img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+}
+
+.item-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.row-item:hover .item-overlay {
+  opacity: 1;
+}
+
+.item-overlay span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Tablet: slightly smaller cards */
+@media (max-width: 1024px) {
+  .row-item {
+    flex: 0 0 200px;
+  }
+  .row-nav {
+    width: 40px;
+  }
+  .row-nav svg {
+    width: 20px;
+    height: 20px;
+  }
+  .row-container:hover .row-nav {
+    opacity: 1;
+  }
+}
+
+/* Mobile: smaller cards, always show nav for touch scroll */
+@media (max-width: 768px) {
+  .content-row {
+    margin-bottom: 28px;
+  }
+  .row-title {
+    font-size: 1.125rem;
+    margin: 0 0 12px 4%;
+  }
+  .row-container {
+    padding: 0 2%;
+  }
+  .row-item {
+    flex: 0 0 160px;
+  }
+  .row-nav {
+    width: 32px;
+    opacity: 1;
+    background: rgba(0,0,0,0.4);
+  }
+  .row-nav svg {
+    width: 18px;
+    height: 18px;
+  }
+  .row-scroll {
+    gap: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .item-overlay {
+    padding: 12px;
+  }
+  .item-overlay span {
+    font-size: 12px;
+  }
+}
+
+/* Small smartphone */
+@media (max-width: 480px) {
+  .row-item {
+    flex: 0 0 130px;
+  }
+  .row-nav {
+    width: 28px;
+  }
+}

@@ -1,0 +1,321 @@
+.account-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.account-content {
+  padding: 100px 4% 80px;
+  max-width: 700px;
+}
+
+.account-content h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 32px;
+}
+
+.account-section {
+  margin-bottom: 40px;
+}
+
+.account-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+}
+
+.account-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #333;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.account-label {
+  font-size: 14px;
+  color: #808080;
+  margin: 0 0 4px;
+}
+
+.account-value {
+  font-size: 16px;
+  color: #fff;
+  margin: 0;
+}
+
+.account-link,
+.account-link-btn {
+  color: #0080ff;
+  text-decoration: none;
+  font-size: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.account-link:hover,
+.account-link-btn:hover {
+  text-decoration: underline;
+}
+
+.account-link-btn.cancel {
+  color: #808080;
+  margin-left: 12px;
+}
+
+.account-hint {
+  font-size: 13px;
+  color: #737373;
+}
+
+.account-edit-input {
+  width: 100%;
+  max-width: 200px;
+  padding: 8px 12px;
+  background: #333;
+  border: 1px solid #555;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.account-edit-actions {
+  display: flex;
+  gap: 0;
+}
+
+.account-plan-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.account-modal-text {
+  color: #b3b3b3;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.account-modal-row {
+  margin-bottom: 16px;
+}
+
+.account-modal-label {
+  display: block;
+  font-size: 14px;
+  color: #b3b3b3;
+  margin-bottom: 6px;
+}
+
+/* Account modals */
+.account-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.account-modal {
+  background: #181818;
+  border-radius: 8px;
+  padding: 32px;
+  max-width: 420px;
+  width: 100%;
+}
+
+.account-modal h3 {
+  font-size: 1.5rem;
+  color: #fff;
+  margin: 0 0 24px;
+}
+
+.account-modal-error {
+  color: #e87c03;
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+
+.account-modal-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  background: #333;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.account-modal-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.account-btn-primary {
+  padding: 12px 24px;
+  background: #e50914;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.account-btn-primary:hover {
+  background: #f40612;
+}
+
+.account-btn-secondary {
+  padding: 12px 24px;
+  background: transparent;
+  color: #fff;
+  border: 1px solid #666;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.account-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.plan-options {
+  margin-bottom: 24px;
+}
+
+.plan-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #333;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.plan-option:hover {
+  background: #404040;
+}
+
+.plan-option.current {
+  border: 1px solid #e50914;
+}
+
+.plan-option-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plan-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.plan-price {
+  font-size: 14px;
+  color: #b3b3b3;
+}
+
+.plan-badge {
+  font-size: 12px;
+  color: #46d369;
+}
+
+.account-modal-close {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #fff;
+  border: 1px solid #666;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.account-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.account-link:hover {
+  text-decoration: underline;
+}
+
+.account-actions {
+  margin-top: 40px;
+}
+
+.account-back {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.account-back:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .account-content {
+    padding: 80px 4% 60px;
+  }
+  .account-content h1 {
+    font-size: 1.75rem;
+  }
+  .account-section h2 {
+    font-size: 1.125rem;
+  }
+  .account-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .account-modal {
+    margin: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .account-content {
+    padding: 70px 3% 48px;
+  }
+  .account-content h1 {
+    font-size: 1.5rem;
+  }
+  .account-value {
+    font-size: 0.9375rem;
+  }
+  .account-edit-input {
+    max-width: 100%;
+  }
+  .account-modal-overlay {
+    padding: 12px;
+  }
+  .account-modal {
+    padding: 24px;
+  }
+  .account-modal h3 {
+    font-size: 1.25rem;
+  }
+  .plan-option {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
