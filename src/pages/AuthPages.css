@@ -180,6 +180,17 @@
   line-height: 1.5;
 }
 
+.reset-sent {
+  margin-bottom: 20px;
+}
+
+.reset-sent-note {
+  color: var(--color-text-dim);
+  font-size: 0.9375rem;
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+
 .reset-demo-code {
   background: rgba(229, 9, 20, 0.15);
   border: 1px solid rgba(229, 9, 20, 0.4);

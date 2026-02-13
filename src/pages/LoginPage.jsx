@@ -19,11 +19,11 @@ export default function LoginPage() {
     if (user) navigate("/profiles", { replace: true });
   }, [user, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const result = login(email.trim(), password);
+    const result = await login(email.trim(), password);
     setLoading(false);
     if (result.success) {
       navigate("/profiles", { replace: true });

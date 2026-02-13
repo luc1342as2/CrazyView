@@ -54,7 +54,7 @@ export default function SignupPage() {
     setStep(STEPS.payment);
   };
 
-  const handlePaymentSubmit = (e) => {
+  const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     setError("");
     const { cardNumber, expiry, cvc, zip } = payment;
@@ -76,7 +76,7 @@ export default function SignupPage() {
       return;
     }
     setLoading(true);
-    const result = signup(email.trim(), password, name.trim() || "User", planId);
+    const result = await signup(email.trim(), password, name.trim() || "User", planId);
     setLoading(false);
     if (result.success) {
       navigate("/profiles", { replace: true });
