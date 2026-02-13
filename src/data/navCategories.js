@@ -10,7 +10,7 @@ export const SERIES_GENRES = [
 ];
 
 export const DOCUMENTARY_GENRES = [
-  "Biography", "History", "Science", "Nature", "True Crime", "Sports",
+  "Biography", "History", "Science", "Nature", "True Crime", "Sports", "Documentary", "Food",
 ];
 
 // Map genre display names to translation keys
@@ -38,4 +38,7 @@ export const GENRE_TO_KEY = {
   Miniseries: "genre.miniseries",
   Anthology: "genre.anthology",
   Political: "genre.political",
+  Documentary: "genre.documentary",
+  Nature: "genre.nature",
+  Food: "genre.food",
 };

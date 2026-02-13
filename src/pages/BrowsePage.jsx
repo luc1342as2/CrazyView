@@ -17,10 +17,7 @@ export default function BrowsePage() {
 
   const allMovies = Object.values(contentCatalog).filter((c) => c.type === "movie");
   const allSeries = Object.values(contentCatalog).filter((c) => c.type === "show");
-  const docGenres = ["Biography", "History"];
-  const allDocumentaries = Object.values(contentCatalog).filter((c) =>
-    (c.genre || []).some((g) => docGenres.includes(g))
-  );
+  const allDocumentaries = Object.values(contentCatalog).filter((c) => c.type === "documentary");
   const allContent = Object.values(contentCatalog);
 
   const filterByGenre = (items) => {
@@ -42,7 +39,7 @@ export default function BrowsePage() {
       return <ContentRow key={`series-${genre || "all"}`} title={title} items={items} />;
     }
     if (section === "documentaries") {
-      const items = genre ? filterByGenre(allContent) : allDocumentaries;
+      const items = genre ? filterByGenre(allDocumentaries) : allDocumentaries;
       const genreLabel = genre ? (t(GENRE_TO_KEY[genre]) || genre) : null;
       const title = genreLabel ? `${t("nav.documentaries")} - ${genreLabel}` : t("nav.documentaries");
       return <ContentRow key={`documentaries-${genre || "all"}`} title={title} items={items} />;

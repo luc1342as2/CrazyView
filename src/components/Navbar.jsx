@@ -9,7 +9,7 @@ import "./Navbar.css";
 export default function Navbar({ transparent = false }) {
   const [showMenu, setShowMenu] = useState(false);
   const [hoverDropdown, setHoverDropdown] = useState(null);
-  const { user, logout } = useAuth();
+  const { user, currentProfile, logout } = useAuth();
   const { lang, setLang, t } = useLanguage();
   const location = useLocation();
   const isLanding = location.pathname === "/";
@@ -75,7 +75,13 @@ export default function Navbar({ transparent = false }) {
               ))}
             </select>
             <div className="nav-profile" onClick={() => setShowMenu(!showMenu)}>
-              <div className="profile-avatar">U</div>
+              <div className="profile-avatar">
+                {user?.profileAvatars?.[currentProfile] ? (
+                  <img src={user.profileAvatars[currentProfile]} alt="" />
+                ) : (
+                  "U"
+                )}
+              </div>
               <svg className="dropdown-arrow" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M7 10l5 5 5-5z" />
               </svg>

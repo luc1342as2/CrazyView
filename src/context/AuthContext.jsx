@@ -26,6 +26,7 @@ function toUserObject(stored) {
     name: stored.name || "User",
     plan: stored.plan || "standard",
     profiles: stored.profiles || ["Profile 1"],
+    profileAvatars: stored.profileAvatars || {},
     phone: stored.phone ?? "",
     twoFA: stored.twoFA ?? false,
     twoFAMethod: stored.twoFAMethod ?? null,
@@ -106,6 +107,7 @@ export function AuthProvider({ children }) {
       cardLast4: "4242",
       planCancelled: false,
       planEndsAt: null,
+      profileAvatars: {},
     };
     users.push(newUser);
     saveUsers(users);
@@ -127,6 +129,7 @@ export function AuthProvider({ children }) {
       name: "name",
       plan: "plan",
       profiles: "profiles",
+      profileAvatars: "profileAvatars",
       phone: "phone",
       twoFA: "twoFA",
       twoFAMethod: "twoFAMethod",
@@ -147,18 +150,27 @@ export function AuthProvider({ children }) {
     persistUser(updated);
   };
 
-  const updateProfile = (oldName, newName) => {
+  const updateProfile = (oldName, newName, avatarUrl) => {
     if (!user) return;
     const profiles = [...(user.profiles || [])];
     const idx = profiles.indexOf(oldName);
     if (idx >= 0) profiles[idx] = newName;
-    updateUser({ profiles });
+    const profileAvatars = { ...(user.profileAvatars || {}) };
+    if (avatarUrl !== undefined) {
+      if (oldName !== newName && profileAvatars[oldName]) {
+        delete profileAvatars[oldName];
+      }
+      if (avatarUrl) profileAvatars[newName] = avatarUrl;
+    }
+    updateUser({ profiles, profileAvatars });
   };
 
-  const addProfile = (name) => {
+  const addProfile = (name, avatarUrl) => {
     if (!user) return;
     const profiles = [...(user.profiles || []), name];
-    updateUser({ profiles });
+    const profileAvatars = { ...(user.profileAvatars || {}) };
+    if (avatarUrl) profileAvatars[name] = avatarUrl;
+    updateUser({ profiles, profileAvatars });
   };
 
   const removeProfile = (name) => {

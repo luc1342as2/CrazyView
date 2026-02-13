@@ -123,6 +123,7 @@ const translations = {
     // Profiles
     "profiles.whosWatching": "Who's watching?",
     "profiles.addProfile": "Add Profile",
+    "profiles.chooseAvatar": "Choose a profile image",
     "profiles.manageProfiles": "Manage Profiles",
     "profiles.profileNamePlaceholder": "Profile name",
     "profiles.add": "Add",
