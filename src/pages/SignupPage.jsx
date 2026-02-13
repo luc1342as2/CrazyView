@@ -15,10 +15,10 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [planId, setPlanId] = useState("standard");
-  const [payment, setPayment] = useState({ cardNumber: "", expiry: "", cvc: "", zip: "" });
+  const [payment, setPayment] = useState({ cardNumber: "", expiry: "", cvc: "", address: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user, signup } = useAuth();
+  const { user, signup, logout } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -28,6 +28,17 @@ export default function SignupPage() {
 
   const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
   const validatePassword = (p) => p.length >= 4 && p.length <= 60;
+
+  const isExpiredCard = (expiry) => {
+    if (!expiry || expiry.length < 4) return false;
+    const [mm, yy] = expiry.split("/").map(Number);
+    if (!mm || !yy) return false;
+    const now = new Date();
+    const expYear = 2000 + yy;
+    if (expYear < now.getFullYear()) return true;
+    if (expYear === now.getFullYear() && mm < now.getMonth() + 1) return true;
+    return false;
+  };
 
   const handleEmailNext = (e) => {
     e.preventDefault();
@@ -57,7 +68,7 @@ export default function SignupPage() {
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    const { cardNumber, expiry, cvc, zip } = payment;
+    const { cardNumber, expiry, cvc, address } = payment;
     const cardClean = cardNumber.replace(/\s/g, "");
     if (cardClean.length < 13) {
       setError(t("signup.errorCard"));
@@ -67,19 +78,24 @@ export default function SignupPage() {
       setError(t("signup.errorExpiry"));
       return;
     }
+    if (isExpiredCard(expiry)) {
+      setError(t("signup.errorExpiredCard"));
+      return;
+    }
     if (cvc.length < 3) {
       setError(t("signup.errorCvc"));
       return;
     }
-    if (zip.length < 3) {
-      setError(t("signup.errorZip"));
+    if (!address.trim() || address.trim().length < 5) {
+      setError(t("signup.errorAddress"));
       return;
     }
     setLoading(true);
     const result = await signup(email.trim(), password, name.trim() || "User", planId);
     setLoading(false);
     if (result.success) {
-      navigate("/profiles", { replace: true });
+      await logout();
+      navigate("/login", { replace: true, state: { message: t("signup.accountCreatedMessage") } });
     } else {
       setError(result.error || t("login.error"));
     }
@@ -206,12 +222,13 @@ export default function SignupPage() {
                 </div>
               </div>
               <div className="payment-row">
-                <label>{t("signup.billingZip")}</label>
+                <label>{t("signup.billingAddress")}</label>
                 <input
                   type="text"
-                  placeholder="12345"
-                  value={payment.zip}
-                  onChange={(e) => setPayment((p) => ({ ...p, zip: e.target.value }))}
+                  placeholder={t("signup.addressPlaceholder")}
+                  value={payment.address}
+                  onChange={(e) => setPayment((p) => ({ ...p, address: e.target.value }))}
+                  autoComplete="street-address"
                 />
               </div>
               <p className="payment-note">

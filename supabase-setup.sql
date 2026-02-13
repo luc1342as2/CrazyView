@@ -1,5 +1,8 @@
 -- Run this SQL in your Supabase project: SQL Editor > New Query
 -- https://supabase.com/dashboard/project/_/sql
+--
+-- IMPORTANT: To allow users to log in immediately after signup (without email confirmation),
+-- go to Authentication > Providers > Email and disable "Confirm email".
 
 -- Profiles table: stores user data (plan, profiles, etc.)
 create table if not exists public.profiles (

@@ -76,7 +76,13 @@ export function AuthProvider({ children }) {
       password,
     });
     if (error) {
-      return { success: false, error: error.message || "Invalid email or password." };
+      const msg = error.message || "Invalid email or password.";
+      const isInvalidCreds =
+        msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("credentials");
+      const hint = isInvalidCreds
+        ? " If you just signed up, check your email for a confirmation link."
+        : "";
+      return { success: false, error: msg + hint };
     }
     await syncUser(data.user);
     return { success: true };

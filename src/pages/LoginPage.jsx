@@ -5,9 +5,12 @@ import { useLanguage } from "../context/LanguageContext";
 import Navbar from "../components/Navbar";
 import "./AuthPages.css";
 
+const REMEMBER_EMAIL_KEY = "crazyview_remember_email";
+
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => localStorage.getItem(REMEMBER_EMAIL_KEY) || "");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem(REMEMBER_EMAIL_KEY));
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { user, login } = useAuth();
@@ -23,6 +26,11 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    if (rememberMe) {
+      localStorage.setItem(REMEMBER_EMAIL_KEY, email.trim());
+    } else {
+      localStorage.removeItem(REMEMBER_EMAIL_KEY);
+    }
     const result = await login(email.trim(), password);
     setLoading(false);
     if (result.success) {
@@ -65,7 +73,11 @@ export default function LoginPage() {
           </form>
           <div className="auth-help">
             <label className="checkbox">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
               <span>{t("login.rememberMe")}</span>
             </label>
             <Link to="/forgot-password">{t("login.needHelp")}</Link>
