@@ -1,18 +1,23 @@
-# Netflix Clone
+🎬 CrazyView — React Netflix Clone
 
-A complete Netflix clone built with React.js featuring login, signup, plan selection, payment flow, profile selection, and a browse experience.
+CrazyView is a full-featured Netflix clone built with React.js that recreates the look and feel of a modern streaming platform interface. It includes key user flows and common UI features seen in real-world media apps.
 
-## Features
+🚀 Key Features
 
-- **Landing Page** - Hero section, content rows, call-to-action
-- **Sign In** - Email/password authentication with validation
-- **Sign Up** - Multi-step flow:
-  1. Email verification
-  2. Password & name
-  3. Plan selection (Basic, Standard, Premium)
-  4. Payment form (card number, expiry, CVC, ZIP)
-- **Profile Selection** - "Who's watching?" Netflix-style profile picker
-- **Browse** - Full browse experience with hero carousel and content rows
-- **Responsive** - Works on desktop and mobile
+Landing Page: Hero banner with call-to-action and featured content sections.
 
+Authentication: Sign-in and sign-up forms with client-side validation.
 
+Plan & Payment Flow: Users can browse subscription plans and complete a payment process.
+
+Profile Selection: A profile picker similar to Netflix’s “Who’s watching?” experience.
+
+Responsive Browse UI: Content rows and categories adapt for desktop and mobile layouts.
+
+📦 Tech Stack
+
+Built with React.js for modular, component-based UI development.
+
+Uses modern web development tooling (e.g., Vite, ESLint).
+
+Styled with CSS for responsive and clean layouts.
